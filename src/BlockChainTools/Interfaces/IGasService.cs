@@ -42,7 +42,7 @@ public interface IGasService
     /// </summary>
     /// <param name="web3"></param>
     /// <param name="erc20ContractAddress"></param>
-    /// <param name = "toAddress" ></ param >
+    /// <param name="toAddress"></param>
     /// <param name="value"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
