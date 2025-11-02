@@ -5,7 +5,7 @@ namespace BlockChainTools.Interfaces;
 public interface IWeb3ProviderService
 {
     /// <summary>
-    /// Use it for inquiry balance and not for ransactions
+    /// Use it for inquiry balance and not for transactions
     /// </summary>
     /// <param name="chain"></param>
     /// <returns></returns>
