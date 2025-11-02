@@ -27,7 +27,7 @@ public class HdWalletService : IHdWalletService
     {
         try
         {
-            return new Nethereum.HdWallet.Wallet(string.Join(' ', words.ToList()), seedPassword);
+            return new Nethereum.HdWallet.Wallet(string.Join(' ', words), seedPassword);
         }
         catch (Exception e)
         {
