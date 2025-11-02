@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>BlockChainTools.Tests</RootNamespace>
+    <AssemblyName>BlockChainTools.Tests</AssemblyName>
+  </PropertyGroup>
+
+</Project>

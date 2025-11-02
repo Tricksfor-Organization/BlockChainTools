@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- central versions -->
+    <PackageVersion Include="Nethereum.Accounts" Version="5.0.0" />
+    <PackageVersion Include="Nethereum.Web3" Version="5.0.0" />
+    <PackageVersion Include="Nethereum.Signer" Version="5.0.0" />
+    <PackageVersion Include="Nethereum.HdWallet" Version="5.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
+    <PackageVersion Include="Tricksfor.DistributedNonce" Version="9.0.0" />
+  </ItemGroup>
+</Project>

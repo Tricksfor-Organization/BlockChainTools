@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>BlockChainTools</RootNamespace>
+    <AssemblyName>BlockChainTools</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Nethereum.Accounts" />
+    <PackageReference Include="Nethereum.Signer" />
+    <PackageReference Include="Nethereum.Web3" />
+    <PackageReference Include="Tricksfor.DistributedNonce" />
+    <PackageReference Include="Nethereum.HdWallet" />
+  </ItemGroup>
+
+</Project>
