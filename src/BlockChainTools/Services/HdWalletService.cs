@@ -61,7 +61,7 @@ public class HdWalletService : IHdWalletService
         }
     }
 
-    public static Account GetAccount(Nethereum.HdWallet.Wallet wallet, Nethereum.Signer.Chain chain, string address)
+    public Account GetAccount(Nethereum.HdWallet.Wallet wallet, Nethereum.Signer.Chain chain, string address)
     {
         try
         {
