@@ -74,7 +74,7 @@ public class TransferService : ITransferService
     }
 
     /// <summary>
-    /// Transfer ERC20 token and wait for receipt
+    /// Transfer ERC721 token and wait for receipt
     /// </summary>
     /// <param name="web3"></param>
     /// <param name="contractAddress"></param>
