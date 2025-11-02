@@ -12,7 +12,7 @@ The solution consists of the following projects:
 ## Getting Started
 
 ### Prerequisites
-- .NET SDK (version 6.0 or later)
+- .NET SDK (version 9.0 or later)
 - A code editor (e.g., Visual Studio Code)
 
 ### Installation
