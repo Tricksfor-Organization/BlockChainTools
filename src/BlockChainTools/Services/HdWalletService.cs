@@ -12,15 +12,8 @@ public class HdWalletService : IHdWalletService
 {
     public Nethereum.HdWallet.Wallet GenerateWallet(string seedPassword, WordCount wordCount)
     {
-        try
-        {
-            var mnemonic = new Mnemonic(Wordlist.English, wordCount);
-            return new Nethereum.HdWallet.Wallet(mnemonic.WordList, wordCount, seedPassword: seedPassword);
-        }
-        catch (Exception e)
-        {
-            throw new InvalidOperationException($"Cannot generate HD wallet with result: {e.Message}.", e.InnerException);
-        }
+        var mnemonic = new Mnemonic(Wordlist.English, wordCount);
+        return new Nethereum.HdWallet.Wallet(mnemonic.WordList, wordCount, seedPassword: seedPassword);
     }
 
     public Nethereum.HdWallet.Wallet RestoreWallet(List<string> words, string seedPassword)
@@ -29,7 +22,11 @@ public class HdWalletService : IHdWalletService
         {
             return new Nethereum.HdWallet.Wallet(string.Join(' ', words), seedPassword);
         }
-        catch (Exception e)
+        catch (ArgumentException e)
+        {
+            throw new InvalidOperationException($"Cannot restore HD wallet with result: {e.Message}.", e.InnerException);
+        }
+        catch (FormatException e)
         {
             throw new InvalidOperationException($"Cannot restore HD wallet with result: {e.Message}.", e.InnerException);
         }
@@ -37,67 +34,32 @@ public class HdWalletService : IHdWalletService
 
     public Account GetAccount(Nethereum.HdWallet.Wallet wallet, int index)
     {
-        try
-        {
-            var account = wallet.GetAccount(index);
-            return account;
-        }
-        catch (Exception e)
-        {
-            throw new InvalidOperationException($"Cannot get account by index from HD wallet with result: {e.Message}.", e.InnerException);
-        }
+        var account = wallet.GetAccount(index);
+        return account;
     }
 
     public Account GetAccount(Nethereum.HdWallet.Wallet wallet, Nethereum.Signer.Chain chain, int index)
     {
-        try
-        {
-            var account = wallet.GetAccount(index, (int)chain);
-            return account;
-        }
-        catch (Exception e)
-        {
-            throw new InvalidOperationException($"Cannot get account by index from HD wallet with result: {e.Message}.", e.InnerException);
-        }
+        var account = wallet.GetAccount(index, (int)chain);
+        return account;
     }
 
     public Account GetAccount(Nethereum.HdWallet.Wallet wallet, Nethereum.Signer.Chain chain, string address)
     {
-        try
-        {
-            var account = wallet.GetAccount(address, (int)chain);
-            return account;
-        }
-        catch (Exception e)
-        {
-            throw new InvalidOperationException($"Cannot get account by address from HD wallet with result: {e.Message}.", e.InnerException);
-        }
+        var account = wallet.GetAccount(address, (int)chain);
+        return account;
     }
 
     public Web3 GetWeb3(Nethereum.HdWallet.Wallet wallet, Nethereum.Signer.Chain chain, int index, string rpcUrl)
     {
-        try
-        {
-            var account = GetAccount(wallet, chain, index: index);
+        var account = GetAccount(wallet, chain, index: index);
 
-            return new Web3(account, rpcUrl);
-        }
-        catch (Exception e)
-        {
-            throw new InvalidOperationException($"Cannot get web3 by index from HD wallet with result: {e.Message}.", e.InnerException);
-        }
+        return new Web3(account, rpcUrl);
     }
 
     public Web3 GetWeb3(Nethereum.HdWallet.Wallet wallet, Nethereum.Signer.Chain chain, string address, string rpcUrl)
     {
-        try
-        {
-            var account = GetAccount(wallet, chain, address: address);
-            return new Web3(account, rpcUrl);
-        }
-        catch (Exception e)
-        {
-            throw new InvalidOperationException($"Cannot get web3 by address from HD wallet with result: {e.Message}.", e.InnerException);
-        }
+        var account = GetAccount(wallet, chain, address: address);
+        return new Web3(account, rpcUrl);
     }
 }
