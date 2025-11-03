@@ -42,11 +42,10 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
 
       - name: Restore
-        run: dotnet restore src/${{ env.APPLICATION_NAME }}/${{ env.APPLICATION_NAME }}.csproj
+        run: dotnet restore
 
       - name: Build
-        run: dotnet build src/${{ env.APPLICATION_NAME }}/${{ env.APPLICATION_NAME }}.csproj --configuration Release --no-restore
-
+        run: dotnet build --configuration Release --no-restore
       - name: Run tests (if any)
         run: |
           # fail fast and treat unset vars as errors
@@ -54,7 +53,7 @@ jobs:
           # run tests only if test projects exist. Use find for a robust, recursive check
           # (works regardless of shell globstar settings on the runner)
           if find . -type f -name '*.Tests.csproj' -print -quit | grep -q .; then
-            dotnet test --no-build --verbosity normal
+            dotnet test --configuration Release --no-build --verbosity normal
           else
             echo "No test projects found. Skipping tests."
           fi
