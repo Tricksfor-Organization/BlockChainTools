@@ -10,6 +10,13 @@
     <PackageVersion Include="Nethereum.Signer" Version="5.0.0" />
     <PackageVersion Include="Nethereum.HdWallet" Version="5.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
+    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.5.2" />
+    <PackageVersion Include="NUnit" Version="3.13.3" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="4.3.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageVersion Include="NSubstitute" Version="5.0.0" />
+    <PackageVersion Include="DotNet.Testcontainers" Version="1.6.0" />
+    <PackageVersion Include="Nethereum.BlockchainProcessing" Version="5.0.0" />
     <PackageVersion Include="Tricksfor.DistributedNonce" Version="9.0.0" />
   </ItemGroup>
 </Project>

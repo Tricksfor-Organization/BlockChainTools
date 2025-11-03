@@ -6,7 +6,7 @@ namespace BlockChainTools;
 
 public static class ConfigureServices
 {
-    public static void AddBlockChainWeb3ProviderDependencyInjections(this IServiceCollection services)
+    public static void AddBlockChainTools(this IServiceCollection services)
     {
         services.AddScoped<IWeb3ProviderService, Web3ProviderService>();
         services.AddScoped<IBalanceService, BalanceService>();
