@@ -2,10 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <RootNamespace>BlockChainTools</RootNamespace>
-    <AssemblyName>BlockChainTools</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <!-- Include README in the generated NuGet package and set repository/project links -->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/Tricksfor-Organization/BlockChainTools</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/Tricksfor-Organization/BlockChainTools</PackageProjectUrl>
+    <Authors>Tricksfor-Organization</Authors>
+    <Description>BlockChainTools provides a set of tools for working with blockchain technology.</Description>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Nethereum.Accounts" />
@@ -13,6 +21,11 @@
     <PackageReference Include="Nethereum.Web3" />
     <PackageReference Include="Tricksfor.DistributedNonce" />
     <PackageReference Include="Nethereum.HdWallet" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <!-- Ensure the README is included inside the nupkg root so NuGet will display it -->
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
