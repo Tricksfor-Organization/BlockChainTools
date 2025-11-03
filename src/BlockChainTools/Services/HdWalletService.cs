@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using BlockChainTools.Interfaces;
 using NBitcoin;
 using Nethereum.Web3;
@@ -18,18 +16,7 @@ public class HdWalletService : IHdWalletService
 
     public Nethereum.HdWallet.Wallet RestoreWallet(List<string> words, string seedPassword)
     {
-        try
-        {
-            return new Nethereum.HdWallet.Wallet(string.Join(' ', words), seedPassword);
-        }
-        catch (ArgumentException e)
-        {
-            throw new InvalidOperationException($"Cannot restore HD wallet with result: {e.Message}.", e.InnerException);
-        }
-        catch (FormatException e)
-        {
-            throw new InvalidOperationException($"Cannot restore HD wallet with result: {e.Message}.", e.InnerException);
-        }
+        return new Nethereum.HdWallet.Wallet(string.Join(' ', words), seedPassword);
     }
 
     public Account GetAccount(Nethereum.HdWallet.Wallet wallet, int index)
