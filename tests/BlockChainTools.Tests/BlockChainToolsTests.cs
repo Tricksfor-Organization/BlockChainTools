@@ -22,8 +22,6 @@ public class BlockChainToolsTests
     private const int RedisPort = 6379;
     private IConnectionMultiplexer? _mux;
     private ServiceProvider? _provider;
-    private IClient _clientReturns5 = default!;
-    private IClient _clientReturns7 = default!;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
@@ -57,17 +55,6 @@ public class BlockChainToolsTests
 
         _provider = services.BuildServiceProvider();
         scope = _provider.CreateScope();
-
-        // Prepare reusable RPC client mocks for tests
-        _clientReturns5 = Substitute.For<IClient>();
-        _clientReturns5
-            .SendRequestAsync<HexBigInteger>(Arg.Any<RpcRequest>())
-            .Returns(Task.FromResult(new HexBigInteger(new BigInteger(5))));
-
-        _clientReturns7 = Substitute.For<IClient>();
-        _clientReturns7
-            .SendRequestAsync<HexBigInteger>(Arg.Any<RpcRequest>())
-            .Returns(Task.FromResult(new HexBigInteger(new BigInteger(7))));
     }
 
     [OneTimeTearDown]

@@ -1,0 +1,102 @@
+name: CI
+
+env:
+  # Optional secret to prefix the package id (e.g. Tricksfor). Leave unset to keep project name as-is.
+  NUGET_PACKAGE_PREFIX: ${{ secrets.NUGET_PACKAGE_PREFIX }}
+  NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+  APPLICATION_NAME: BlockChainTools
+
+
+on:
+  push:
+    # run on pushes to any branch and on tag pushes matching v*.*.*
+    branches: ['**']
+    tags: ['v*.*.*']
+  pull_request:
+    # run on PRs targeting any branch
+    branches: ['**']
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and Pack
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+
+      - name: Restore
+        run: dotnet restore src/${{ env.APPLICATION_NAME }}/${{ env.APPLICATION_NAME }}.csproj
+
+      - name: Build
+        run: dotnet build src/${{ env.APPLICATION_NAME }}/${{ env.APPLICATION_NAME }}.csproj --configuration Release --no-restore
+
+      - name: Run tests (if any)
+        run: |
+          # fail fast and treat unset vars as errors
+          set -euo pipefail
+          # run tests only if test projects exist. Use find for a robust, recursive check
+          # (works regardless of shell globstar settings on the runner)
+          if find . -type f -name '*.Tests.csproj' -print -quit | grep -q .; then
+            dotnet test --no-build --verbosity normal
+          else
+            echo "No test projects found. Skipping tests."
+          fi
+
+      - name: Compute package version from release tag
+        if: github.event_name == 'release' && github.event.action == 'published'
+        run: |
+          # Use the release tag as the package version. Strip a leading 'v' if present.
+          tag="${{ github.event.release.tag_name }}"
+          if [[ "$tag" == v* ]]; then
+            tag="${tag#v}"
+          fi
+          echo "Computed PACKAGE_VERSION=$tag"
+          echo "PACKAGE_VERSION=$tag" >> $GITHUB_ENV
+
+      - name: Pack
+        if: github.event_name == 'release' && github.event.action == 'published'
+        run: |
+          # Compute package ID using optional prefix. Do not fail if prefix is empty.
+          if [ -n "${PACKAGE_VERSION:-}" ]; then
+            echo "Packing with version $PACKAGE_VERSION"
+          fi
+
+          # Use shell environment variables inside the run script. These are populated
+          # from the workflow-level `env:` (which can include secrets).
+          if [ -n "${NUGET_PACKAGE_PREFIX:-}" ]; then
+            PACKAGE_ID="${NUGET_PACKAGE_PREFIX}.${APPLICATION_NAME}"
+          else
+            PACKAGE_ID="${APPLICATION_NAME}"
+          fi
+
+          echo "Using PackageId=$PACKAGE_ID"
+
+          if [ -n "${PACKAGE_VERSION:-}" ]; then
+            dotnet pack src/${{ env.APPLICATION_NAME }}/${{ env.APPLICATION_NAME }}.csproj -c Release -o ./nupkgs --no-build --include-symbols --include-source /p:PackageVersion=$PACKAGE_VERSION /p:PackageId="$PACKAGE_ID"
+          else
+            dotnet pack src/${{ env.APPLICATION_NAME }}/${{ env.APPLICATION_NAME }}.csproj -c Release -o ./nupkgs --no-build --include-symbols --include-source /p:PackageId="$PACKAGE_ID"
+          fi
+
+      - name: Publish NuGet package
+        if: github.event_name == 'release' && github.event.action == 'published'
+        run: |
+          echo "Publishing packages found in ./nupkgs"
+          ls -la ./nupkgs || true
+          dotnet nuget push ./nupkgs/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
