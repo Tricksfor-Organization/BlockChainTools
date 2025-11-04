@@ -25,7 +25,7 @@ public class TransferServiceTests
         var expected = "0xtxhash";
         var request = Substitute.For<Nethereum.RPC.Eth.DTOs.TransactionInput>();
         _service!.TransferAsync(_web3!, request).Returns(expected);
-        var result = await _service.TransferAsync(_web3, request);
+        var result = await _service.TransferAsync(_web3!, request);
         Assert.AreEqual(expected, result);
     }
 }

@@ -15,7 +15,7 @@
     <PackageVersion Include="NUnit3TestAdapter" Version="4.3.1" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageVersion Include="NSubstitute" Version="5.0.0" />
-    <PackageVersion Include="DotNet.Testcontainers" Version="1.6.0" />
+    <PackageVersion Include="Testcontainers" Version="4.8.1" />
     <PackageVersion Include="Nethereum.BlockchainProcessing" Version="5.0.0" />
     <PackageVersion Include="Tricksfor.DistributedNonce" Version="9.0.0" />
   </ItemGroup>
