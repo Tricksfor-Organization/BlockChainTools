@@ -23,7 +23,7 @@ public class HdWalletServiceTests
         var expected = new Wallet(Wordlist.English, WordCount.Twelve);
         _service!.GenerateWallet("seed", WordCount.Twelve).Returns(expected);
         var result = _service.GenerateWallet("seed", WordCount.Twelve);
-        Assert.AreEqual(expected, result);
+        Assert.That(expected, Is.EqualTo(result));
     }
 
     [Test]
@@ -33,6 +33,6 @@ public class HdWalletServiceTests
         var words = new List<string> { "word1", "word2" };
         _service!.RestoreWallet(words, "seed").Returns(expected);
         var result = _service.RestoreWallet(words, "seed");
-        Assert.AreEqual(expected, result);
+        Assert.That(expected, Is.EqualTo(result));
     }
 }

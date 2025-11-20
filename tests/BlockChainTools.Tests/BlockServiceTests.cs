@@ -25,7 +25,7 @@ public class BlockServiceTests
     {
         var expected = new BigInteger(999);
         _service!.GetLastBlockAsync(_web3!, Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.GetLastBlockAsync(_web3, CancellationToken.None);
-        Assert.AreEqual(expected, result);
+        var result = await _service.GetLastBlockAsync(_web3!, CancellationToken.None);
+        Assert.That(expected, Is.EqualTo(result));
     }
 }

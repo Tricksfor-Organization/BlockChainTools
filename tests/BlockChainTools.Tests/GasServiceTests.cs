@@ -26,7 +26,7 @@ public class GasServiceTests
         var expected = new BigInteger(100);
         _service!.GetGasPriceAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(expected);
         var result = await _service.GetGasPriceAsync("http://rpc", CancellationToken.None);
-        Assert.AreEqual(expected, result);
+        Assert.That(expected, Is.EqualTo(result));
     }
 
     [Test]
@@ -34,7 +34,7 @@ public class GasServiceTests
     {
         var expected = new BigInteger(21000);
         _service!.EstimateTransferGasAsync(_web3!, "0xabc", 1.0m, Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.EstimateTransferGasAsync(_web3, "0xabc", 1.0m);
-        Assert.AreEqual(expected, result);
+        var result = await _service.EstimateTransferGasAsync(_web3!, "0xabc", 1.0m);
+        Assert.That(expected, Is.EqualTo(result));
     }
 }
