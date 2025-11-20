@@ -68,7 +68,7 @@ public async Task GetBalanceOfAsync_ReturnsExpectedBalance()
     
     var result = await _service.GetBalanceOfAsync(_web3!, "0xabc");
     
-    Assert.AreEqual(expected, result);
+    Assert.Equals(expected, result);
 }
 ```
 
@@ -159,7 +159,7 @@ public class MyServiceTests
         var result = await _service.MethodAsync(_web3!);
 
         // Assert
-        Assert.AreEqual(expected, result);
+        Assert.Equals(expected, result);
     }
 }
 ```

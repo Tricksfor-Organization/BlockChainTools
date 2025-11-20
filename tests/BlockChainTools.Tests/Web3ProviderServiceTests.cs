@@ -26,7 +26,7 @@ public class Web3ProviderServiceTests
         var expected = new Web3(_mockClient);
         _service!.CreateWeb3("http://rpc").Returns(expected);
         var result = _service.CreateWeb3("http://rpc");
-        Assert.AreEqual(expected, result);
+        Assert.That(expected, Is.EqualTo(result));
     }
 
     [Test]
@@ -35,6 +35,6 @@ public class Web3ProviderServiceTests
         var expected = new Web3(_mockClient);
         _service!.CreateWeb3("privkey", Chain.MainNet, "http://rpc").Returns(expected);
         var result = _service.CreateWeb3("privkey", Chain.MainNet, "http://rpc");
-        Assert.AreEqual(expected, result);
+        Assert.That(expected, Is.EqualTo(result));
     }
 }

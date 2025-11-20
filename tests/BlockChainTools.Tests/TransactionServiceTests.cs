@@ -24,7 +24,7 @@ public class TransactionServiceTests
     {
         var expected = Substitute.For<Nethereum.RPC.Eth.DTOs.Transaction>();
         _service!.GetTransactionByHashAsync(_web3!, "0xhash", Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.GetTransactionByHashAsync(_web3, "0xhash", CancellationToken.None);
-        Assert.AreEqual(expected, result);
+        var result = await _service.GetTransactionByHashAsync(_web3!, "0xhash", CancellationToken.None);
+        Assert.That(expected, Is.EqualTo(result));
     }
 }
