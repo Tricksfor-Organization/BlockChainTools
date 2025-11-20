@@ -26,7 +26,7 @@ public class BalanceServiceTests
         var expected = new BigInteger(12345);
         _service!.GetBalanceOfAsync(_web3!, "0xabc", Arg.Any<CancellationToken>()).Returns(expected);
         var result = await _service.GetBalanceOfAsync(_web3!, "0xabc");
-        Assert.AreEqual(expected, result);
+        Assert.That(expected, Is.EqualTo(result));
     }
 
     [Test]
@@ -35,7 +35,7 @@ public class BalanceServiceTests
         var expected = new BigInteger(5);
         _service!.GetErc721BalanceAsync(_web3!, "0xerc721", "0xabc", Arg.Any<CancellationToken>()).Returns(expected);
         var result = await _service.GetErc721BalanceAsync(_web3!, "0xerc721", "0xabc");
-        Assert.AreEqual(expected, result);
+        Assert.That(expected, Is.EqualTo(result));
     }
 
     [Test]
@@ -44,6 +44,6 @@ public class BalanceServiceTests
         var expected = new BigInteger(1000);
         _service!.GetErc20BalanceAsync(_web3!, "0xerc20", "0xabc", Arg.Any<CancellationToken>()).Returns(expected);
         var result = await _service.GetErc20BalanceAsync(_web3!, "0xerc20", "0xabc");
-        Assert.AreEqual(expected, result);
+        Assert.That(expected, Is.EqualTo(result));
     }
 }
