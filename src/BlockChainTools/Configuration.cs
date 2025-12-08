@@ -1,5 +1,6 @@
 using BlockChainTools.Interfaces;
 using BlockChainTools.Services;
+using DistributedNonce;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BlockChainTools;
@@ -15,5 +16,7 @@ public static class ConfigureServices
         services.AddScoped<ITransactionService, TransactionService>();
         services.AddScoped<IBlockService, BlockService>();
         services.AddScoped<ITransferService, TransferService>();
+
+        services.AddDistributedNonce();
     }
 }
