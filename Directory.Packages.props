@@ -5,19 +5,18 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- central versions -->
-    <PackageVersion Include="Nethereum.Accounts" Version="5.0.0" />
-    <PackageVersion Include="Nethereum.Web3" Version="5.0.0" />
-    <PackageVersion Include="Nethereum.Signer" Version="5.0.0" />
-    <PackageVersion Include="Nethereum.HdWallet" Version="5.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
-    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.0.2" />
+    <PackageVersion Include="Nethereum.Accounts" Version="5.8.0" />
+    <PackageVersion Include="Nethereum.Web3" Version="5.8.0" />
+    <PackageVersion Include="Nethereum.Signer" Version="5.8.0" />
+    <PackageVersion Include="Nethereum.HdWallet" Version="5.8.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.1.0" />
     <PackageVersion Include="NUnit" Version="4.4.0" />
-    <PackageVersion Include="NUnit3TestAdapter" Version="6.0.0" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="6.1.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageVersion Include="NSubstitute" Version="5.3.0" />
-    <PackageVersion Include="Testcontainers" Version="4.9.0" />
-    <PackageVersion Include="Nethereum.BlockchainProcessing" Version="5.0.0" />
-    <PackageVersion Include="Tricksfor.DistributedNonce" Version="10.0.1" />
+    <PackageVersion Include="Testcontainers" Version="4.10.0" />
+    <PackageVersion Include="Tricksfor.DistributedNonce" Version="10.0.2" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 </Project>
