@@ -61,7 +61,6 @@ public class BlockChainToolsTests
         scope?.Dispose();
         if (_provider is not null)
             await _provider.DisposeAsync();
-        _mux?.Dispose();
     }
 
     [Test, Order(1)]
