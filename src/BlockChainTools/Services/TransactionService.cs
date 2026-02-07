@@ -1,5 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
 using BlockChainTools.Interfaces;
 using Nethereum.Web3;
 

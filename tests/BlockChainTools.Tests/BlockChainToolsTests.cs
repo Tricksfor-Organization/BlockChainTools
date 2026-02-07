@@ -4,10 +4,6 @@ using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using NUnit.Framework;
 using DistributedLockManager;
-using Nethereum.JsonRpc.Client;
-using Nethereum.Hex.HexTypes;
-using System.Numerics;
-using NSubstitute;
 using DistributedNonce;
 using BlockChainTools.Interfaces;
 
@@ -20,14 +16,13 @@ public class BlockChainToolsTests
     private IContainer? _redisContainer;
     private const string RedisImage = "redis:latest";
     private const int RedisPort = 6379;
-    private IConnectionMultiplexer? _mux;
+    private ConnectionMultiplexer? _mux;
     private ServiceProvider? _provider;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
     {
-        _redisContainer = new ContainerBuilder()
-            .WithImage(RedisImage)
+        _redisContainer = new ContainerBuilder(RedisImage)
             .WithCleanUp(true)
             .WithName($"dtm-redis-{Guid.NewGuid():N}")
             .WithPortBinding(RedisPort, true)

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using BlockChainTools.Interfaces;
 using NBitcoin;
 using Nethereum.Web3;
@@ -31,7 +30,7 @@ public class HdWalletService : IHdWalletService
         return account;
     }
 
-    public Account GetAccount(Nethereum.HdWallet.Wallet wallet, Nethereum.Signer.Chain chain, string address)
+    public static Account GetAccount(Nethereum.HdWallet.Wallet wallet, Nethereum.Signer.Chain chain, string address)
     {
         var account = wallet.GetAccount(address, (int)chain);
         return account;

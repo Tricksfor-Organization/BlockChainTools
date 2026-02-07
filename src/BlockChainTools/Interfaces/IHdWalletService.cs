@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using NBitcoin;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
