@@ -3,12 +3,8 @@ using BlockChainTools.Interfaces;
 using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Fee1559Suggestions;
 using Nethereum.Web3;
-using System;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Numerics;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace BlockChainTools.Services;
 
