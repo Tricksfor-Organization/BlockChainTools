@@ -23,7 +23,7 @@ public class NetworkHealthService : INetworkHealthService
         // 1. Check latest block number and timestamp
         try
         {
-            var block = await web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(
+            var block = await web3.Eth.Blocks.GetBlockWithTransactionsHashesByNumber.SendRequestAsync(
                 Nethereum.RPC.Eth.DTOs.BlockParameter.CreateLatest());
 
             if (block is not null)
