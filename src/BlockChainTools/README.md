@@ -9,6 +9,8 @@ A .NET 9 library built on Nethereum that provides ready-to-use services for comm
 - **Gas Estimation** - Estimate gas costs for various transaction types
 - **Transfer Services** - Simplified transfers for native tokens, ERC20, and ERC721 (NFTs)
 - **Transaction & Block Services** - Query blockchain data
+- **Transaction Status** - Detect lifecycle state of transactions (pending, confirmed, reverted, replaced, dropped)
+- **Network Health** - Check blockchain network and RPC endpoint health
 - **Web3 Provider** - Easy Web3 instance creation with distributed nonce support
 
 ## Installation
@@ -87,7 +89,9 @@ var txHash = await transferService.TransferAsync(web3Tx, txInput);
 - **ITransferService** - Transfer native tokens, ERC20, and ERC721 (NFTs)
 - **IHdWalletService** - Generate/restore HD wallets and derive accounts
 - **ITransactionService** - Query transaction details
+- **ITransactionStatusService** - Detect transaction lifecycle state (pending, confirmed, reverted, replaced, dropped)
 - **IBlockService** - Query blockchain block information
+- **INetworkHealthService** - Check network health (block freshness, gas price, chain ID)
 
 ## Distributed Nonce Management
 
