@@ -1,14 +1,16 @@
 using System.Numerics;
 using BlockChainTools.DataTransferObjects;
 using BlockChainTools.Interfaces;
+using Nethereum.Signer;
 using Nethereum.Web3;
 
 namespace BlockChainTools.Services;
 
 public class NetworkHealthService : INetworkHealthService
 {
-    public async Task<NetworkHealthInfo> CheckNetworkHealthAsync(Web3 web3, BigInteger? expectedChainId = null, int maxBlockAgeSeconds = 120, CancellationToken cancellationToken = default)
+    public async Task<NetworkHealthInfo> CheckNetworkHealthAsync(Web3 web3, Chain? expectedChain = null, int maxBlockAgeSeconds = 120, CancellationToken cancellationToken = default)
     {
+        BigInteger? expectedChainId = expectedChain is not null ? (int)expectedChain : null;
         var issues = new List<string>();
         BigInteger? latestBlockNumber = null;
         DateTime? latestBlockTimestamp = null;

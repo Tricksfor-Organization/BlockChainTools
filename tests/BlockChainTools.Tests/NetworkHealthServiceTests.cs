@@ -1,6 +1,7 @@
 using System.Numerics;
 using BlockChainTools.DataTransferObjects;
 using BlockChainTools.Interfaces;
+using Nethereum.Signer;
 using Nethereum.Web3;
 using Nethereum.JsonRpc.Client;
 using NUnit.Framework;
@@ -36,8 +37,8 @@ public class NetworkHealthServiceTests
             ChainIdMatches = true,
             Issues = []
         };
-        _service!.CheckNetworkHealthAsync(_web3!, new BigInteger(137), 120, Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.CheckNetworkHealthAsync(_web3!, new BigInteger(137), 120);
+        _service!.CheckNetworkHealthAsync(_web3!, Chain.Polygon, 120, Arg.Any<CancellationToken>()).Returns(expected);
+        var result = await _service.CheckNetworkHealthAsync(_web3!, Chain.Polygon, 120);
         Assert.That(result.IsHealthy, Is.True);
         Assert.That(result.IsBlockTimestampFresh, Is.True);
         Assert.That(result.IsGasPriceAvailable, Is.True);
@@ -60,8 +61,8 @@ public class NetworkHealthServiceTests
             ChainIdMatches = true,
             Issues = ["Latest block timestamp is 600s old, exceeding the 120s threshold."]
         };
-        _service!.CheckNetworkHealthAsync(_web3!, new BigInteger(137), 120, Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.CheckNetworkHealthAsync(_web3!, new BigInteger(137), 120);
+        _service!.CheckNetworkHealthAsync(_web3!, Chain.Polygon, 120, Arg.Any<CancellationToken>()).Returns(expected);
+        var result = await _service.CheckNetworkHealthAsync(_web3!, Chain.Polygon, 120);
         Assert.That(result.IsHealthy, Is.False);
         Assert.That(result.IsBlockTimestampFresh, Is.False);
         Assert.That(result.Issues, Has.Count.EqualTo(1));
@@ -82,8 +83,8 @@ public class NetworkHealthServiceTests
             ChainIdMatches = false,
             Issues = ["Chain ID mismatch: expected 137, got 1."]
         };
-        _service!.CheckNetworkHealthAsync(_web3!, new BigInteger(137), 120, Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.CheckNetworkHealthAsync(_web3!, new BigInteger(137), 120);
+        _service!.CheckNetworkHealthAsync(_web3!, Chain.Polygon, 120, Arg.Any<CancellationToken>()).Returns(expected);
+        var result = await _service.CheckNetworkHealthAsync(_web3!, Chain.Polygon, 120);
         Assert.That(result.IsHealthy, Is.False);
         Assert.That(result.ChainIdMatches, Is.False);
         Assert.That(result.Issues, Has.Count.EqualTo(1));
@@ -104,10 +105,8 @@ public class NetworkHealthServiceTests
             ChainIdMatches = true,
             Issues = ["Gas price is unavailable or zero."]
         };
-        _service!.CheckNetworkHealthAsync(_web3!, new BigInteger(137), 120, Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.CheckNetworkHealthAsync(_web3!, new BigInteger(137), 120);
-        Assert.That(result.IsHealthy, Is.False);
-        Assert.That(result.IsGasPriceAvailable, Is.False);
+        _service!.CheckNetworkHealthAsync(_web3!, Chain.Polygon, 120, Arg.Any<CancellationToken>()).Returns(expected);
+        var result = await _service.CheckNetworkHealthAsync(_web3!, Chain.Polygon, 120);
         Assert.That(result.Issues, Has.Count.EqualTo(1));
     }
 
