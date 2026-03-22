@@ -107,16 +107,4 @@ public class TransactionStatusServiceTests
         Assert.That(result.ConfirmedNonce, Is.Null);
     }
 
-    [Test]
-    public async Task GetTransactionStateAsync_Broadcasted_ReturnsCorrectState()
-    {
-        var expected = new TransactionStateInfo
-        {
-            State = TransactionState.Broadcasted,
-            TransactionHash = "0xbroadcast"
-        };
-        _service!.GetTransactionStateAsync(_web3!, "0xbroadcast", Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.GetTransactionStateAsync(_web3!, "0xbroadcast");
-        Assert.That(result.State, Is.EqualTo(TransactionState.Broadcasted));
-    }
 }

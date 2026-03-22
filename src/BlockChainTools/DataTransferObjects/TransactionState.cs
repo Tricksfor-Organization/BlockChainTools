@@ -6,11 +6,6 @@ namespace BlockChainTools.DataTransferObjects;
 public enum TransactionState
 {
     /// <summary>
-    /// A transaction hash was obtained but no further information is available yet.
-    /// </summary>
-    Broadcasted,
-
-    /// <summary>
     /// The transaction is known to the node (returned by eth_getTransactionByHash)
     /// but has not yet been mined (no receipt).
     /// </summary>

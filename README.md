@@ -292,7 +292,6 @@ var stateInfo = await txStatusService.GetTransactionStateAsync(
 );
 
 // stateInfo.State can be:
-//   TransactionState.Broadcasted      – tx hash obtained, no further info yet
 //   TransactionState.Pending          – known to node but not mined
 //   TransactionState.ConfirmedSuccess – receipt exists, status == 1
 //   TransactionState.ConfirmedReverted– receipt exists, status == 0 (on-chain revert)
@@ -370,7 +369,7 @@ var quickHealth = await healthService.CheckNetworkHealthAsync(web3);
 - `GetTransactionByHashAsync(Web3, string hash)` - Get transaction details
 
 ### ITransactionStatusService
-- `GetTransactionStateAsync(Web3, string transactionHash)` - Determine the lifecycle state of a transaction (Broadcasted, Pending, ConfirmedSuccess, ConfirmedReverted, Replaced, StalePending)
+- `GetTransactionStateAsync(Web3, string transactionHash)` - Determine the lifecycle state of a transaction (Pending, ConfirmedSuccess, ConfirmedReverted, Replaced, StalePending)
 
 ### IBlockService
 - `GetLastBlockAsync(Web3)` - Get latest block number

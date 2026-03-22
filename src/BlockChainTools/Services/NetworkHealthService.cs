@@ -1,6 +1,7 @@
 using System.Numerics;
 using BlockChainTools.DataTransferObjects;
 using BlockChainTools.Interfaces;
+using Nethereum.Hex.HexTypes;
 using Nethereum.Signer;
 using Nethereum.Web3;
 
@@ -10,7 +11,6 @@ public class NetworkHealthService : INetworkHealthService
 {
     public async Task<NetworkHealthInfo> CheckNetworkHealthAsync(Web3 web3, Chain? expectedChain = null, int maxBlockAgeSeconds = 120, CancellationToken cancellationToken = default)
     {
-        BigInteger? expectedChainId = expectedChain is not null ? (int)expectedChain : null;
         var issues = new List<string>();
         BigInteger? latestBlockNumber = null;
         DateTime? latestBlockTimestamp = null;
@@ -29,21 +29,12 @@ public class NetworkHealthService : INetworkHealthService
             if (block is not null)
             {
                 latestBlockNumber = block.Number?.Value;
-                if (block.Timestamp?.Value is not null)
-                {
-                    latestBlockTimestamp = DateTimeOffset.FromUnixTimeSeconds((long)block.Timestamp.Value).UtcDateTime;
-                    var age = DateTime.UtcNow - latestBlockTimestamp.Value;
-                    isBlockTimestampFresh = age.TotalSeconds <= maxBlockAgeSeconds;
+                (latestBlockTimestamp, isBlockTimestampFresh) = EvaluateBlockFreshness(block.Timestamp, maxBlockAgeSeconds);
 
-                    if (!isBlockTimestampFresh)
-                    {
-                        issues.Add($"Latest block timestamp is {age.TotalSeconds:F0}s old, exceeding the {maxBlockAgeSeconds}s threshold.");
-                    }
-                }
-                else
-                {
+                if (latestBlockTimestamp is null)
                     issues.Add("Latest block has no timestamp.");
-                }
+                else if (!isBlockTimestampFresh)
+                    issues.Add($"Latest block timestamp is {(DateTime.UtcNow - latestBlockTimestamp.Value).TotalSeconds:F0}s old, exceeding the {maxBlockAgeSeconds}s threshold.");
             }
             else
             {
@@ -78,12 +69,12 @@ public class NetworkHealthService : INetworkHealthService
             var chainIdResult = await web3.Eth.ChainId.SendRequestAsync();
             chainId = chainIdResult?.Value;
 
-            if (expectedChainId is not null)
+            if (expectedChain is not null)
             {
-                chainIdMatches = chainId == expectedChainId;
+                chainIdMatches = chainId == (int)expectedChain;
                 if (!chainIdMatches)
                 {
-                    issues.Add($"Chain ID mismatch: expected {expectedChainId}, got {chainId}.");
+                    issues.Add($"Chain ID mismatch: expected {(int)expectedChain}, got {chainId}.");
                 }
             }
         }
@@ -107,5 +98,15 @@ public class NetworkHealthService : INetworkHealthService
             ChainIdMatches = chainIdMatches,
             Issues = issues.AsReadOnly()
         };
+    }
+
+    private static (DateTime? Timestamp, bool IsFresh) EvaluateBlockFreshness(HexBigInteger? blockTimestamp, int maxBlockAgeSeconds)
+    {
+        if (blockTimestamp?.Value is null)
+            return (null, false);
+
+        var timestamp = DateTimeOffset.FromUnixTimeSeconds((long)blockTimestamp.Value).UtcDateTime;
+        var isFresh = (DateTime.UtcNow - timestamp).TotalSeconds <= maxBlockAgeSeconds;
+        return (timestamp, isFresh);
     }
 }
