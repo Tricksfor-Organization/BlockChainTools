@@ -16,6 +16,8 @@ public static class ConfigureServices
         services.AddScoped<ITransactionService, TransactionService>();
         services.AddScoped<IBlockService, BlockService>();
         services.AddScoped<ITransferService, TransferService>();
+        services.AddScoped<ITransactionStatusService, TransactionStatusService>();
+        services.AddScoped<INetworkHealthService, NetworkHealthService>();
 
         services.AddDistributedNonce();
     }
