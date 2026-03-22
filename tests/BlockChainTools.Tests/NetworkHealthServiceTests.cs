@@ -107,6 +107,8 @@ public class NetworkHealthServiceTests
         };
         _service!.CheckNetworkHealthAsync(_web3!, Chain.Polygon, 120, Arg.Any<CancellationToken>()).Returns(expected);
         var result = await _service.CheckNetworkHealthAsync(_web3!, Chain.Polygon, 120);
+        Assert.That(result.IsHealthy, Is.False);
+        Assert.That(result.IsGasPriceAvailable, Is.False);
         Assert.That(result.Issues, Has.Count.EqualTo(1));
     }
 
@@ -146,8 +148,8 @@ public class NetworkHealthServiceTests
             ChainIdMatches = false,
             Issues = ["Unable to retrieve the latest block.", "Gas price is unavailable or zero.", "Failed to retrieve chain ID: timeout"]
         };
-        _service!.CheckNetworkHealthAsync(_web3!, new BigInteger(137), 120, Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.CheckNetworkHealthAsync(_web3!, new BigInteger(137), 120);
+        _service!.CheckNetworkHealthAsync(_web3!, Chain.Polygon, 120, Arg.Any<CancellationToken>()).Returns(expected);
+        var result = await _service.CheckNetworkHealthAsync(_web3!, Chain.Polygon, 120);
         Assert.That(result.IsHealthy, Is.False);
         Assert.That(result.Issues, Has.Count.EqualTo(3));
     }

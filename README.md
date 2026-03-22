@@ -7,9 +7,11 @@ A .NET 9 library that provides comprehensive utilities and services for working 
 - **HD Wallet Management**: Generate and restore hierarchical deterministic wallets
 - **Balance Services**: Query native token and ERC20/ERC721 token balances
 - **Transaction Services**: Send and track blockchain transactions
+- **Transaction Status**: Detect the correct lifecycle state of a transaction (pending, confirmed, reverted, replaced, dropped)
 - **Gas Estimation**: Estimate gas costs for various transaction types
 - **Transfer Services**: Simplified token transfer operations (native, ERC20, ERC721)
 - **Block Services**: Query blockchain block information
+- **Network Health**: Check blockchain network and RPC endpoint health before sending transactions
 - **Web3 Provider**: Easy Web3 instance creation with various configurations
 
 ## Prerequisites
@@ -272,6 +274,65 @@ var blockService = serviceProvider.GetRequiredService<IBlockService>();
 var latestBlock = await blockService.GetLastBlockAsync(web3, cancellationToken);
 ```
 
+#### Transaction Status Service
+
+Detect the lifecycle state of a transaction:
+
+```csharp
+using BlockChainTools.Interfaces;
+using BlockChainTools.DataTransferObjects;
+
+var txStatusService = serviceProvider.GetRequiredService<ITransactionStatusService>();
+
+// Check the state of a transaction by hash
+var stateInfo = await txStatusService.GetTransactionStateAsync(
+    web3, 
+    "0xTransactionHash...", 
+    cancellationToken
+);
+
+// stateInfo.State can be:
+//   TransactionState.Broadcasted      – tx hash obtained, no further info yet
+//   TransactionState.Pending          – known to node but not mined
+//   TransactionState.ConfirmedSuccess – receipt exists, status == 1
+//   TransactionState.ConfirmedReverted– receipt exists, status == 0 (on-chain revert)
+//   TransactionState.Replaced         – another tx with the same nonce was mined
+//   TransactionState.StalePending     – node no longer knows the tx (likely dropped)
+
+if (stateInfo.State == TransactionState.ConfirmedSuccess)
+{
+    Console.WriteLine($"Mined in block {stateInfo.BlockNumber}");
+}
+```
+
+#### Network Health Service
+
+Check blockchain network health before sending transactions:
+
+```csharp
+using BlockChainTools.Interfaces;
+using Nethereum.Signer;
+
+var healthService = serviceProvider.GetRequiredService<INetworkHealthService>();
+
+// Full health check with expected chain and freshness threshold
+var health = await healthService.CheckNetworkHealthAsync(
+    web3,
+    expectedChain: Chain.Polygon,
+    maxBlockAgeSeconds: 120,
+    cancellationToken
+);
+
+if (!health.IsHealthy)
+{
+    foreach (var issue in health.Issues)
+        Console.WriteLine($"Issue: {issue}");
+}
+
+// Quick check without chain ID validation
+var quickHealth = await healthService.CheckNetworkHealthAsync(web3);
+```
+
 ## Available Services
 
 ### IWeb3ProviderService
@@ -308,8 +369,14 @@ var latestBlock = await blockService.GetLastBlockAsync(web3, cancellationToken);
 ### ITransactionService
 - `GetTransactionByHashAsync(Web3, string hash)` - Get transaction details
 
+### ITransactionStatusService
+- `GetTransactionStateAsync(Web3, string transactionHash)` - Determine the lifecycle state of a transaction (Broadcasted, Pending, ConfirmedSuccess, ConfirmedReverted, Replaced, StalePending)
+
 ### IBlockService
 - `GetLastBlockAsync(Web3)` - Get latest block number
+
+### INetworkHealthService
+- `CheckNetworkHealthAsync(Web3, Chain? expectedChain, int maxBlockAgeSeconds)` - Check network health (block freshness, gas price availability, chain ID match)
 
 ## Project Structure
 
@@ -323,7 +390,9 @@ BlockChainTools/
 │       │   ├── BlockService.cs
 │       │   ├── GasService.cs
 │       │   ├── HdWalletService.cs
+│       │   ├── NetworkHealthService.cs
 │       │   ├── TransactionService.cs
+│       │   ├── TransactionStatusService.cs
 │       │   ├── TransferService.cs
 │       │   └── Web3ProviderService.cs
 │       ├── Interfaces/                   # Service contracts
@@ -334,12 +403,12 @@ BlockChainTools/
 
 ## Dependencies
 
-- **Nethereum.Web3** (5.0.0) - Ethereum Web3 implementation
-- **Nethereum.Accounts** (5.0.0) - Account management
-- **Nethereum.Signer** (5.0.0) - Transaction signing
-- **Nethereum.HdWallet** (5.0.0) - HD wallet support
-- **Microsoft.Extensions.DependencyInjection** (9.0.10) - DI support
-- **Tricksfor.DistributedNonce** (9.0.0) - Distributed nonce management
+- **Nethereum.Web3** (6.0.4) - Ethereum Web3 implementation
+- **Nethereum.Accounts** (6.0.4) - Account management
+- **Nethereum.Signer** (6.0.4) - Transaction signing
+- **Nethereum.HdWallet** (6.0.4) - HD wallet support
+- **Microsoft.Extensions.DependencyInjection** (10.0.5) - DI support
+- **Tricksfor.DistributedNonce** (10.0.2) - Distributed nonce management
 
 ## Testing
 
