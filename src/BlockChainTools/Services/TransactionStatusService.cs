@@ -1,6 +1,5 @@
 using BlockChainTools.DataTransferObjects;
 using BlockChainTools.Interfaces;
-using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
 
