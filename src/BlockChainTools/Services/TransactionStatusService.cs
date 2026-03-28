@@ -55,6 +55,8 @@ public class TransactionStatusService : ITransactionStatusService
                         State = TransactionState.Replaced,
                         TransactionHash = transactionHash,
                         Nonce = txNonce,
+                        Value = transaction.Value?.Value,
+                        Gas = transaction.Gas?.Value,
                         ConfirmedNonce = confirmedNonce.Value
                     };
                 }
@@ -64,7 +66,9 @@ public class TransactionStatusService : ITransactionStatusService
             {
                 State = TransactionState.Pending,
                 TransactionHash = transactionHash,
-                Nonce = txNonce
+                Nonce = txNonce,
+                Value = transaction.Value?.Value,
+                Gas = transaction.Gas?.Value
             };
         }
 

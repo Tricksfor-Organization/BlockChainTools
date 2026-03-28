@@ -48,13 +48,21 @@ public class TransactionStateInfo
     public BigInteger? ConfirmedNonce { get; init; }
 
     /// <summary>
-    /// The amount of native currency (in wei) sent with the transaction, if the transaction data was available.
+    /// The amount of native currency (in wei) sent with the transaction.
+    /// Populated whenever the transaction data is available from the node:
+    /// <see cref="TransactionState.ConfirmedSuccess"/>, <see cref="TransactionState.ConfirmedReverted"/>,
+    /// <see cref="TransactionState.Pending"/>, and <see cref="TransactionState.Replaced"/>.
+    /// Null for <see cref="TransactionState.StalePending"/> (node no longer holds the transaction).
     /// This property is not included in the transaction receipt and is sourced from the transaction object.
     /// </summary>
     public BigInteger? Value { get; init; }
 
     /// <summary>
-    /// The gas limit provided by the sender, if the transaction data was available.
+    /// The gas limit provided by the sender.
+    /// Populated whenever the transaction data is available from the node:
+    /// <see cref="TransactionState.ConfirmedSuccess"/>, <see cref="TransactionState.ConfirmedReverted"/>,
+    /// <see cref="TransactionState.Pending"/>, and <see cref="TransactionState.Replaced"/>.
+    /// Null for <see cref="TransactionState.StalePending"/> (node no longer holds the transaction).
     /// This property is not included in the transaction receipt and is sourced from the transaction object.
     /// </summary>
     public BigInteger? Gas { get; init; }

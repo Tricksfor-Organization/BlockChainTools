@@ -88,7 +88,9 @@ public class TransactionStatusServiceTests
         {
             State = TransactionState.Pending,
             TransactionHash = "0xpending",
-            Nonce = new BigInteger(5)
+            Nonce = new BigInteger(5),
+            Value = new BigInteger(500000000000000000),
+            Gas = new BigInteger(21000)
         };
         _service!.GetTransactionStateAsync(_web3!, "0xpending", Arg.Any<CancellationToken>()).Returns(expected);
         var result = await _service.GetTransactionStateAsync(_web3!, "0xpending");
@@ -96,6 +98,8 @@ public class TransactionStatusServiceTests
         Assert.That(result.ReceiptStatus, Is.Null);
         Assert.That(result.BlockNumber, Is.Null);
         Assert.That(result.Nonce, Is.EqualTo(new BigInteger(5)));
+        Assert.That(result.Value, Is.EqualTo(new BigInteger(500000000000000000)));
+        Assert.That(result.Gas, Is.EqualTo(new BigInteger(21000)));
     }
 
     [Test]
@@ -106,6 +110,8 @@ public class TransactionStatusServiceTests
             State = TransactionState.Replaced,
             TransactionHash = "0xreplaced",
             Nonce = new BigInteger(3),
+            Value = new BigInteger(250000000000000000),
+            Gas = new BigInteger(21000),
             ConfirmedNonce = new BigInteger(5)
         };
         _service!.GetTransactionStateAsync(_web3!, "0xreplaced", Arg.Any<CancellationToken>()).Returns(expected);
@@ -114,6 +120,8 @@ public class TransactionStatusServiceTests
         Assert.That(result.Nonce, Is.Not.Null);
         Assert.That(result.ConfirmedNonce, Is.Not.Null);
         Assert.That(result.ConfirmedNonce!.Value, Is.GreaterThan(result.Nonce!.Value));
+        Assert.That(result.Value, Is.EqualTo(new BigInteger(250000000000000000)));
+        Assert.That(result.Gas, Is.EqualTo(new BigInteger(21000)));
     }
 
     [Test]
