@@ -150,10 +150,7 @@ public class TransactionStatusServiceTests
             TransactionHash = "0xpruned",
             Receipt = receipt,
             ReceiptStatus = BigInteger.One,
-            BlockNumber = new BigInteger(50),
-            Nonce = null,
-            Value = null,
-            Gas = null
+            BlockNumber = new BigInteger(50)
         };
         _service!.GetTransactionStateAsync(_web3!, "0xpruned", Arg.Any<CancellationToken>()).Returns(expected);
         var result = await _service.GetTransactionStateAsync(_web3!, "0xpruned");

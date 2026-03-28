@@ -41,7 +41,9 @@ public class TransactionStateInfo
     public BigInteger? Nonce { get; init; }
 
     /// <summary>
-    /// The confirmed on-chain nonce for the sender address, if checked.
+    /// The confirmed on-chain nonce for the sender address at the time the replacement was detected.
+    /// Only populated when <see cref="State"/> is <see cref="TransactionState.Replaced"/>;
+    /// null for all other states.
     /// </summary>
     public BigInteger? ConfirmedNonce { get; init; }
 

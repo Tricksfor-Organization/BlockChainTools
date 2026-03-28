@@ -28,8 +28,7 @@ public class TransactionStatusService : ITransactionStatusService
                 BlockNumber = receipt.BlockNumber?.Value,
                 Nonce = confirmedTx?.Nonce?.Value,
                 Value = confirmedTx?.Value?.Value,
-                Gas = confirmedTx?.Gas?.Value,
-                ConfirmedNonce = null
+                Gas = confirmedTx?.Gas?.Value
             };
         }
 
@@ -55,8 +54,6 @@ public class TransactionStatusService : ITransactionStatusService
                     {
                         State = TransactionState.Replaced,
                         TransactionHash = transactionHash,
-                        ReceiptStatus = null,
-                        BlockNumber = null,
                         Nonce = txNonce,
                         ConfirmedNonce = confirmedNonce.Value
                     };
@@ -67,10 +64,7 @@ public class TransactionStatusService : ITransactionStatusService
             {
                 State = TransactionState.Pending,
                 TransactionHash = transactionHash,
-                ReceiptStatus = null,
-                BlockNumber = null,
-                Nonce = txNonce,
-                ConfirmedNonce = null
+                Nonce = txNonce
             };
         }
 
@@ -78,11 +72,7 @@ public class TransactionStatusService : ITransactionStatusService
         return new TransactionStateInfo
         {
             State = TransactionState.StalePending,
-            TransactionHash = transactionHash,
-            ReceiptStatus = null,
-            BlockNumber = null,
-            Nonce = null,
-            ConfirmedNonce = null
+            TransactionHash = transactionHash
         };
     }
 }
