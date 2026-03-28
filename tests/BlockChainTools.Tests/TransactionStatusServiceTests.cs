@@ -1,26 +1,50 @@
 using System.Numerics;
 using BlockChainTools.DataTransferObjects;
-using BlockChainTools.Interfaces;
+using BlockChainTools.Services;
 using Nethereum.Hex.HexTypes;
+using Nethereum.JsonRpc.Client;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
-using Nethereum.JsonRpc.Client;
-using NUnit.Framework;
 using NSubstitute;
+using NUnit.Framework;
 
 namespace BlockChainTools.Tests;
 
 [TestFixture]
 public class TransactionStatusServiceTests
 {
-    private ITransactionStatusService? _service;
-    private Web3? _web3;
+    private TransactionStatusService _service = null!;
 
     [SetUp]
-    public void SetUp()
+    public void SetUp() => _service = new TransactionStatusService();
+
+    /// <summary>
+    /// Builds a <see cref="Web3"/> whose underlying <see cref="IClient"/> is stubbed so that
+    /// each Ethereum JSON-RPC method returns the supplied value (or <c>null</c> when omitted).
+    /// </summary>
+    private static Web3 BuildWeb3(
+        TransactionReceipt? receipt = null,
+        Transaction? tx = null,
+        HexBigInteger? transactionCount = null)
     {
-        _service = Substitute.For<ITransactionStatusService>();
-        _web3 = new Web3(Substitute.For<IClient>());
+        var client = Substitute.For<IClient>();
+
+        client.SendRequestAsync<TransactionReceipt>(
+                Arg.Is<RpcRequest>(r => r.Method == "eth_getTransactionReceipt"),
+                Arg.Any<string>())
+            .Returns(receipt!);
+
+        client.SendRequestAsync<Transaction>(
+                Arg.Is<RpcRequest>(r => r.Method == "eth_getTransactionByHash"),
+                Arg.Any<string>())
+            .Returns(tx!);
+
+        client.SendRequestAsync<HexBigInteger>(
+                Arg.Is<RpcRequest>(r => r.Method == "eth_getTransactionCount"),
+                Arg.Any<string>())
+            .Returns(transactionCount!);
+
+        return new Web3(client);
     }
 
     [Test]
@@ -31,28 +55,26 @@ public class TransactionStatusServiceTests
             Status = new HexBigInteger(1),
             BlockNumber = new HexBigInteger(100)
         };
-        var expected = new TransactionStateInfo
+        var tx = new Transaction
         {
-            State = TransactionState.ConfirmedSuccess,
-            TransactionHash = "0xabc",
-            Receipt = receipt,
-            ReceiptStatus = BigInteger.One,
-            BlockNumber = new BigInteger(100),
-            Nonce = new BigInteger(7),
-            Value = new BigInteger(1000000000000000000),
-            Gas = new BigInteger(21000)
+            Nonce = new HexBigInteger(7),
+            Value = new HexBigInteger(1_000_000_000_000_000_000L),
+            Gas = new HexBigInteger(21000)
         };
-        _service!.GetTransactionStateAsync(_web3!, "0xabc", Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.GetTransactionStateAsync(_web3!, "0xabc");
+        var web3 = BuildWeb3(receipt: receipt, tx: tx);
+
+        var result = await _service.GetTransactionStateAsync(web3, "0xabc");
+
         Assert.That(result.State, Is.EqualTo(TransactionState.ConfirmedSuccess));
-        Assert.That(result.ReceiptStatus, Is.EqualTo(BigInteger.One));
-        Assert.That(result.BlockNumber, Is.EqualTo(new BigInteger(100)));
         Assert.That(result.TransactionHash, Is.EqualTo("0xabc"));
         Assert.That(result.Receipt, Is.Not.Null);
         Assert.That(result.Receipt!.Status?.Value, Is.EqualTo(BigInteger.One));
+        Assert.That(result.ReceiptStatus, Is.EqualTo(BigInteger.One));
+        Assert.That(result.BlockNumber, Is.EqualTo(new BigInteger(100)));
         Assert.That(result.Nonce, Is.EqualTo(new BigInteger(7)));
-        Assert.That(result.Value, Is.EqualTo(new BigInteger(1000000000000000000)));
+        Assert.That(result.Value, Is.EqualTo(new BigInteger(1_000_000_000_000_000_000L)));
         Assert.That(result.Gas, Is.EqualTo(new BigInteger(21000)));
+        Assert.That(result.ConfirmedNonce, Is.Null);
     }
 
     [Test]
@@ -63,111 +85,114 @@ public class TransactionStatusServiceTests
             Status = new HexBigInteger(0),
             BlockNumber = new HexBigInteger(200)
         };
-        var expected = new TransactionStateInfo
+        var tx = new Transaction
         {
-            State = TransactionState.ConfirmedReverted,
-            TransactionHash = "0xdef",
-            Receipt = receipt,
-            ReceiptStatus = BigInteger.Zero,
-            BlockNumber = new BigInteger(200),
-            Nonce = new BigInteger(3)
+            Nonce = new HexBigInteger(3),
+            Value = new HexBigInteger(0),
+            Gas = new HexBigInteger(21000)
         };
-        _service!.GetTransactionStateAsync(_web3!, "0xdef", Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.GetTransactionStateAsync(_web3!, "0xdef");
+        var web3 = BuildWeb3(receipt: receipt, tx: tx);
+
+        var result = await _service.GetTransactionStateAsync(web3, "0xdef");
+
         Assert.That(result.State, Is.EqualTo(TransactionState.ConfirmedReverted));
-        Assert.That(result.ReceiptStatus, Is.EqualTo(BigInteger.Zero));
         Assert.That(result.Receipt, Is.Not.Null);
         Assert.That(result.Receipt!.Status?.Value, Is.EqualTo(BigInteger.Zero));
+        Assert.That(result.ReceiptStatus, Is.EqualTo(BigInteger.Zero));
+        Assert.That(result.BlockNumber, Is.EqualTo(new BigInteger(200)));
         Assert.That(result.Nonce, Is.EqualTo(new BigInteger(3)));
+        Assert.That(result.Value, Is.EqualTo(BigInteger.Zero));
+        Assert.That(result.Gas, Is.EqualTo(new BigInteger(21000)));
+        Assert.That(result.ConfirmedNonce, Is.Null);
     }
 
     [Test]
     public async Task GetTransactionStateAsync_Pending_ReturnsCorrectState()
     {
-        var expected = new TransactionStateInfo
+        var tx = new Transaction
         {
-            State = TransactionState.Pending,
-            TransactionHash = "0xpending",
-            Nonce = new BigInteger(5),
-            Value = new BigInteger(500000000000000000),
-            Gas = new BigInteger(21000)
+            From = "0xsender",
+            Nonce = new HexBigInteger(5),
+            Value = new HexBigInteger(500_000_000_000_000_000L),
+            Gas = new HexBigInteger(21000)
         };
-        _service!.GetTransactionStateAsync(_web3!, "0xpending", Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.GetTransactionStateAsync(_web3!, "0xpending");
+        // Confirmed nonce equals tx nonce — not yet replaced, still pending
+        var web3 = BuildWeb3(tx: tx, transactionCount: new HexBigInteger(5));
+
+        var result = await _service.GetTransactionStateAsync(web3, "0xpending");
+
         Assert.That(result.State, Is.EqualTo(TransactionState.Pending));
+        Assert.That(result.Receipt, Is.Null);
         Assert.That(result.ReceiptStatus, Is.Null);
         Assert.That(result.BlockNumber, Is.Null);
         Assert.That(result.Nonce, Is.EqualTo(new BigInteger(5)));
-        Assert.That(result.Value, Is.EqualTo(new BigInteger(500000000000000000)));
+        Assert.That(result.Value, Is.EqualTo(new BigInteger(500_000_000_000_000_000L)));
         Assert.That(result.Gas, Is.EqualTo(new BigInteger(21000)));
+        Assert.That(result.ConfirmedNonce, Is.Null);
     }
 
     [Test]
     public async Task GetTransactionStateAsync_Replaced_ReturnsCorrectState()
     {
-        var expected = new TransactionStateInfo
+        var tx = new Transaction
         {
-            State = TransactionState.Replaced,
-            TransactionHash = "0xreplaced",
-            Nonce = new BigInteger(3),
-            Value = new BigInteger(250000000000000000),
-            Gas = new BigInteger(21000),
-            ConfirmedNonce = new BigInteger(5)
+            From = "0xsender",
+            Nonce = new HexBigInteger(3),
+            Value = new HexBigInteger(250_000_000_000_000_000L),
+            Gas = new HexBigInteger(21000)
         };
-        _service!.GetTransactionStateAsync(_web3!, "0xreplaced", Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.GetTransactionStateAsync(_web3!, "0xreplaced");
+        // Confirmed nonce (5) > tx nonce (3) — the tx was replaced by another
+        var web3 = BuildWeb3(tx: tx, transactionCount: new HexBigInteger(5));
+
+        var result = await _service.GetTransactionStateAsync(web3, "0xreplaced");
+
         Assert.That(result.State, Is.EqualTo(TransactionState.Replaced));
-        Assert.That(result.Nonce, Is.Not.Null);
-        Assert.That(result.ConfirmedNonce, Is.Not.Null);
+        Assert.That(result.Nonce, Is.EqualTo(new BigInteger(3)));
+        Assert.That(result.ConfirmedNonce, Is.EqualTo(new BigInteger(5)));
         Assert.That(result.ConfirmedNonce!.Value, Is.GreaterThan(result.Nonce!.Value));
-        Assert.That(result.Value, Is.EqualTo(new BigInteger(250000000000000000)));
+        Assert.That(result.Value, Is.EqualTo(new BigInteger(250_000_000_000_000_000L)));
         Assert.That(result.Gas, Is.EqualTo(new BigInteger(21000)));
     }
 
     [Test]
     public async Task GetTransactionStateAsync_StalePending_ReturnsCorrectState()
     {
-        var expected = new TransactionStateInfo
-        {
-            State = TransactionState.StalePending,
-            TransactionHash = "0xstale"
-        };
-        _service!.GetTransactionStateAsync(_web3!, "0xstale", Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.GetTransactionStateAsync(_web3!, "0xstale");
+        // Node returns null for both receipt and transaction — likely dropped from mempool
+        var web3 = BuildWeb3();
+
+        var result = await _service.GetTransactionStateAsync(web3, "0xstale");
+
         Assert.That(result.State, Is.EqualTo(TransactionState.StalePending));
+        Assert.That(result.TransactionHash, Is.EqualTo("0xstale"));
+        Assert.That(result.Receipt, Is.Null);
         Assert.That(result.ReceiptStatus, Is.Null);
         Assert.That(result.BlockNumber, Is.Null);
         Assert.That(result.Nonce, Is.Null);
+        Assert.That(result.Value, Is.Null);
+        Assert.That(result.Gas, Is.Null);
         Assert.That(result.ConfirmedNonce, Is.Null);
     }
 
     [Test]
     public async Task GetTransactionStateAsync_ConfirmedSuccess_TransactionDataUnavailable_NullableFieldsAreNull()
     {
-        // Simulates the case where a receipt is found but the transaction fetch returns null
-        // (e.g., the node has pruned the transaction data). Receipt is still populated;
-        // Nonce, Value, and Gas are gracefully null.
+        // Receipt found but the node has pruned the transaction object.
+        // Nonce, Value, and Gas fall back to null gracefully; Receipt and ReceiptStatus are still populated.
         var receipt = new TransactionReceipt
         {
             Status = new HexBigInteger(1),
             BlockNumber = new HexBigInteger(50)
         };
-        var expected = new TransactionStateInfo
-        {
-            State = TransactionState.ConfirmedSuccess,
-            TransactionHash = "0xpruned",
-            Receipt = receipt,
-            ReceiptStatus = BigInteger.One,
-            BlockNumber = new BigInteger(50)
-        };
-        _service!.GetTransactionStateAsync(_web3!, "0xpruned", Arg.Any<CancellationToken>()).Returns(expected);
-        var result = await _service.GetTransactionStateAsync(_web3!, "0xpruned");
+        var web3 = BuildWeb3(receipt: receipt); // tx = null (pruned)
+
+        var result = await _service.GetTransactionStateAsync(web3, "0xpruned");
+
         Assert.That(result.State, Is.EqualTo(TransactionState.ConfirmedSuccess));
         Assert.That(result.Receipt, Is.Not.Null);
         Assert.That(result.ReceiptStatus, Is.EqualTo(BigInteger.One));
+        Assert.That(result.BlockNumber, Is.EqualTo(new BigInteger(50)));
         Assert.That(result.Nonce, Is.Null);
         Assert.That(result.Value, Is.Null);
         Assert.That(result.Gas, Is.Null);
     }
-
 }
