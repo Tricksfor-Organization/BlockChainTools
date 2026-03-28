@@ -295,14 +295,53 @@ var stateInfo = await txStatusService.GetTransactionStateAsync(
 //   TransactionState.Pending          – known to node but not mined
 //   TransactionState.ConfirmedSuccess – receipt exists, status == 1
 //   TransactionState.ConfirmedReverted– receipt exists, status == 0 (on-chain revert)
-//   TransactionState.Replaced         – another tx with the same nonce was mined
+//   TransactionState.Replaced         – another tx with the same nonce was mined first
 //   TransactionState.StalePending     – node no longer knows the tx (likely dropped)
 
-if (stateInfo.State == TransactionState.ConfirmedSuccess)
+switch (stateInfo.State)
 {
-    Console.WriteLine($"Mined in block {stateInfo.BlockNumber}");
+    case TransactionState.ConfirmedSuccess:
+    case TransactionState.ConfirmedReverted:
+        Console.WriteLine($"Mined in block {stateInfo.BlockNumber}");
+        Console.WriteLine($"Receipt status: {stateInfo.ReceiptStatus}");   // 1 or 0
+        Console.WriteLine($"Gas used: {stateInfo.Receipt!.GasUsed}");      // full receipt available
+        Console.WriteLine($"Nonce: {stateInfo.Nonce}, Value: {stateInfo.Value}, Gas limit: {stateInfo.Gas}");
+        break;
+
+    case TransactionState.Replaced:
+        // The sender's confirmed nonce has already passed this tx's nonce
+        Console.WriteLine($"Tx nonce {stateInfo.Nonce} was replaced; sender's confirmed nonce is now {stateInfo.ConfirmedNonce}");
+        Console.WriteLine($"Original value: {stateInfo.Value}, gas limit: {stateInfo.Gas}");
+        break;
+
+    case TransactionState.Pending:
+        Console.WriteLine($"Still pending – nonce {stateInfo.Nonce}, value {stateInfo.Value}, gas limit {stateInfo.Gas}");
+        break;
+
+    case TransactionState.StalePending:
+        Console.WriteLine("Transaction dropped from the mempool");
+        break;
 }
 ```
+
+##### `TransactionStateInfo` property population by state
+
+| Property | ConfirmedSuccess / ConfirmedReverted | Pending | Replaced | StalePending |
+|---|---|---|---|---|
+| `State` | ✅ | ✅ | ✅ | ✅ |
+| `TransactionHash` | ✅ | ✅ | ✅ | ✅ |
+| `Receipt` | ✅ | — | — | — |
+| `ReceiptStatus` | ✅ | — | — | — |
+| `BlockNumber` | ✅ | — | — | — |
+| `Nonce` | ✅ | ✅ | ✅ | — |
+| `Value` | ✅ | ✅ | ✅ | — |
+| `Gas` | ✅ | ✅ | ✅ | — |
+| `ConfirmedNonce` | — | — | ✅ | — |
+
+`Receipt`, `ReceiptStatus`, and `BlockNumber` are only available when a receipt exists (confirmed states).  
+`Nonce`, `Value`, and `Gas` are populated whenever the node still holds the transaction object.  
+`ConfirmedNonce` is exclusively set for the `Replaced` state — it holds the sender's current on-chain nonce at the point replacement was detected.  
+All properties are `null` for states where the data source is unavailable.
 
 #### Network Health Service
 

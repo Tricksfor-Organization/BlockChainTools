@@ -10,23 +10,32 @@ public class TransactionStatusService : ITransactionStatusService
     public async Task<TransactionStateInfo> GetTransactionStateAsync(Web3 web3, string transactionHash, CancellationToken cancellationToken = default)
     {
         // 1. Try to get the receipt — this is the canonical success/failure signal
+        cancellationToken.ThrowIfCancellationRequested();
         TransactionReceipt? receipt = await web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash);
 
         if (receipt is not null)
         {
             var succeeded = receipt.Status?.Value == 1;
+
+            // Fetch the transaction to populate fields not included in the receipt (Nonce, Value, Gas)
+            cancellationToken.ThrowIfCancellationRequested();
+            var confirmedTx = await web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(transactionHash);
+
             return new TransactionStateInfo
             {
                 State = succeeded ? TransactionState.ConfirmedSuccess : TransactionState.ConfirmedReverted,
                 TransactionHash = transactionHash,
+                Receipt = receipt,
                 ReceiptStatus = receipt.Status?.Value,
                 BlockNumber = receipt.BlockNumber?.Value,
-                Nonce = null,
-                ConfirmedNonce = null
+                Nonce = confirmedTx?.Nonce?.Value,
+                Value = confirmedTx?.Value?.Value,
+                Gas = confirmedTx?.Gas?.Value
             };
         }
 
         // 2. No receipt — check if the node still knows about the transaction
+        cancellationToken.ThrowIfCancellationRequested();
         var transaction = await web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(transactionHash);
 
         if (transaction is not null)
@@ -38,6 +47,7 @@ public class TransactionStatusService : ITransactionStatusService
             if (senderAddress is not null && txNonce is not null)
             {
                 // Get the confirmed (mined) nonce for the sender
+                cancellationToken.ThrowIfCancellationRequested();
                 var confirmedNonce = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(
                     senderAddress, BlockParameter.CreateLatest());
 
@@ -48,9 +58,9 @@ public class TransactionStatusService : ITransactionStatusService
                     {
                         State = TransactionState.Replaced,
                         TransactionHash = transactionHash,
-                        ReceiptStatus = null,
-                        BlockNumber = null,
                         Nonce = txNonce,
+                        Value = transaction.Value?.Value,
+                        Gas = transaction.Gas?.Value,
                         ConfirmedNonce = confirmedNonce.Value
                     };
                 }
@@ -60,10 +70,9 @@ public class TransactionStatusService : ITransactionStatusService
             {
                 State = TransactionState.Pending,
                 TransactionHash = transactionHash,
-                ReceiptStatus = null,
-                BlockNumber = null,
                 Nonce = txNonce,
-                ConfirmedNonce = null
+                Value = transaction.Value?.Value,
+                Gas = transaction.Gas?.Value
             };
         }
 
@@ -71,11 +80,7 @@ public class TransactionStatusService : ITransactionStatusService
         return new TransactionStateInfo
         {
             State = TransactionState.StalePending,
-            TransactionHash = transactionHash,
-            ReceiptStatus = null,
-            BlockNumber = null,
-            Nonce = null,
-            ConfirmedNonce = null
+            TransactionHash = transactionHash
         };
     }
 }
