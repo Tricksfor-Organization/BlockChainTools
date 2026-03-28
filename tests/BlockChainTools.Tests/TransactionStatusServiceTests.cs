@@ -195,4 +195,15 @@ public class TransactionStatusServiceTests
         Assert.That(result.Value, Is.Null);
         Assert.That(result.Gas, Is.Null);
     }
+
+    [Test]
+    public void GetTransactionStateAsync_CancelledToken_ThrowsOperationCanceledException()
+    {
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+        var web3 = BuildWeb3();
+
+        Assert.ThrowsAsync<OperationCanceledException>(
+            () => _service.GetTransactionStateAsync(web3, "0xany", cts.Token));
+    }
 }
