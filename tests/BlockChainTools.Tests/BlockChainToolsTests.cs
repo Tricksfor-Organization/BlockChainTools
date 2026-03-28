@@ -41,6 +41,7 @@ public class BlockChainToolsTests
         _mux = await ConnectionMultiplexer.ConnectAsync(endpoint);
 
         var services = new ServiceCollection();
+        services.AddLogging();
         services.AddDistributedLockManager();
         services.AddDistributedNonce();
         services.AddSingleton<HttpClient>(_ => new HttpClient());
