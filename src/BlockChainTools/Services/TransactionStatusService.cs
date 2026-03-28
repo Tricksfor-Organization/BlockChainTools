@@ -15,13 +15,20 @@ public class TransactionStatusService : ITransactionStatusService
         if (receipt is not null)
         {
             var succeeded = receipt.Status?.Value == 1;
+
+            // Fetch the transaction to populate fields not included in the receipt (Nonce, Value, Gas)
+            var confirmedTx = await web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(transactionHash);
+
             return new TransactionStateInfo
             {
                 State = succeeded ? TransactionState.ConfirmedSuccess : TransactionState.ConfirmedReverted,
                 TransactionHash = transactionHash,
+                Receipt = receipt,
                 ReceiptStatus = receipt.Status?.Value,
                 BlockNumber = receipt.BlockNumber?.Value,
-                Nonce = null,
+                Nonce = confirmedTx?.Nonce?.Value,
+                Value = confirmedTx?.Value?.Value,
+                Gas = confirmedTx?.Gas?.Value,
                 ConfirmedNonce = null
             };
         }
